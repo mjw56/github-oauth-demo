@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="author" content="mike">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="white">
+
+    <title>GitHub OAuth Demo</title>
+    
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  </head>
+  <body class="landing">
+    <header role="banner">
+      <h1>Header</h1>
+    </header>
+
+    <main role="main">
+      <section>
+        <button onclick="login()">Login With Github</button>
+        <div id="github-creds"></div>
+      </section>
+    </main>
+    <script>
+      function login() {
+        // handle messages received from popup window
+        const receiveMessage = event => {
+          // Do we trust the sender of this message?
+          if (event.origin !== window.location.origin) {
+            return;
+          }
+
+          // set the details in HTML
+          document.getElementById('github-creds').innerHTML = event.data;
+
+          // remove the listener as we should only receive one message
+          window.removeEventListener("message", receiveMessage, false);
+
+          // close the window
+          githubWindow.close();
+        };
+
+        // listen for messages back from popup
+        window.addEventListener("message", receiveMessage, false);
+
+        // open the popup
+        const githubWindow = window.open(
+          `https://github.com/login/oauth/authorize?client_id=${process.env.OAUTH_DEMO_GITHUB_CLIENT_ID}&scope=user%20public_repo&redirect_uri=http://localhost:1337/callback`,
+          "GitHubLogin",
+          "menubar=no,location=yes,resizable=yes,status=yes,width=786,height=534"
+        );
+      }
+    </script>
+  </body>
+</html>
